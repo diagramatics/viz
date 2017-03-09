@@ -1,3 +1,7 @@
+const sensitivity = 1.6; // min 1
+const topRange = -32; // max 0
+const bottomRange = -140;
+
 function aggregate(data, bars) {
   const aggregated = new Float32Array(bars);
 
@@ -6,7 +10,11 @@ function aggregate(data, bars) {
     const upperBound = Math.floor((i + 1) / bars * data.length);
     const bucket = data.slice(lowerBound, upperBound);
 
-    aggregated[i] = bucket.reduce((acc, d) => acc + d, 0) / bucket.length;
+    aggregated[i] = bucket.reduce((acc, d) => acc + d, 0) / bucket.length * sensitivity;
+
+    if (!Number.isFinite(aggregated[i])) {
+      aggregated[i] = bottomRange;
+    }
   }
 
   return aggregated;
@@ -55,7 +63,7 @@ navigator.mediaDevices.getUserMedia({ audio: true, video: false })
 
       const yScale = d3.scaleLinear()
         .range([height, 0])
-        .domain([0, -128]);
+        .domain([topRange, bottomRange]);
 
       // const line = d3.line()
       //   .x(function(d, i) { return xScale(i); })
