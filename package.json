@@ -4,7 +4,9 @@
   "description": "Visualizer.",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "copy": "cp node_modules/normalize.css/normalize.css vendor/normalize.css/normalize.css && cp node_modules/d3/build/d3.js vendor/d3/build/d3.js",
+    "postinstall": "npm run copy"
   },
   "author": "",
   "license": "ISC",
