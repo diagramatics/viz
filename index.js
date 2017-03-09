@@ -31,8 +31,6 @@ navigator.mediaDevices.getUserMedia({ audio: true, video: false })
 
     selector.selectAll('rect').remove();
 
-
-
     selector.attr('width', width);
     selector.attr('height', height);
 
