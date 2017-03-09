@@ -1,0 +1,13 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.background {
+  fill: red;
+}
+
+.frequency-bar {
+  fill: black;
+}
