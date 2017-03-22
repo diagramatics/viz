@@ -1,6 +1,6 @@
-const sensitivity = 1.6; // min 1
-const topRange = -32; // max 0
-const bottomRange = -140;
+const sensitivity = 1; // min 1
+const topRange = 500; // max 0
+const bottomRange = -10;
 
 function aggregate(data, bars) {
   const aggregated = new Float32Array(bars);
@@ -26,15 +26,14 @@ const height = window.innerHeight;
 
 navigator.mediaDevices.getUserMedia({ audio: true, video: false })
   .then((mediaStream) => {
-    const bars = Math.floor(width / 30);
+    // const bars = Math.floor(width / 30);
+    const bars = 90;
     const context = new AudioContext();
     const source = context.createMediaStreamSource(mediaStream);
 
     const analyser = context.createAnalyser();
-    // analyser.fftSize = 2048;
+    analyser.fftSize = 4096;
     source.connect(analyser);
-    // analyser.connect(context.destination);
-    //
     const selector = d3.select('#svg');
 
     selector.selectAll('rect').remove();
@@ -51,11 +50,14 @@ navigator.mediaDevices.getUserMedia({ audio: true, video: false })
 
     selector.attr("style", "transform-origin: " + (width / 2) + "px " + (height / 2) + "px; transform: scaleY(-1);");
 
+    const spectrum = new Spectrum();
 
     const visualize = function () {
-      let waveformData = new Float32Array(analyser.frequencyBinCount);
-      analyser.getFloatFrequencyData(waveformData);
-      waveformData = aggregate(waveformData, bars);
+      // let waveformData = new Float32Array(analyser.frequencyBinCount);
+      let waveformData = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(waveformData);
+      // waveformData = aggregate(waveformData, bars);
+      waveformData = spectrum.GetVisualBins(waveformData, bars, 0, 1000);
 
       const xScale = d3.scaleLinear()
         .range([0, width])
@@ -65,31 +67,26 @@ navigator.mediaDevices.getUserMedia({ audio: true, video: false })
         .range([height, 0])
         .domain([topRange, bottomRange]);
 
-      // const line = d3.line()
-      //   .x(function(d, i) { return xScale(i); })
-      //   .y(function(d, i) { return yScale(d); });
-
       const rect = selector.selectAll('rect.frequency-bar')
         .data(waveformData);
 
-      rect
-        // .select('#waveformPath')
-        .enter()
+      rect.enter()
         .append('rect')
         .attr('x', function(d, i) {
-          return xScale(i) * 1.05;
+          return xScale(i) * 1.1;
         })
         .attr('width', function() {
           return width / bars;
+          // return 20;
         })
-        .attr('rx', 8)
-        .attr('ry', 8)
+        .attr('height', 1)
+        // .attr('rx', 8)
+        // .attr('ry', 8)
         .attr('y', -4)
         .attr('class', 'frequency-bar');
-        // .datum(waveformData)
-        // .attr('d', line);
 
-      rect.attr('height', (d) => Math.max(1, yScale(d)));
+      // rect.attr('height', (d) => Math.max(1, yScale(d)));
+      rect.attr('style', (d) => `transform: scaleY(${-Math.max(1, yScale(d))})`)
 
 
       requestAnimationFrame(visualize);

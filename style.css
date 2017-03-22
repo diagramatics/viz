@@ -18,4 +18,5 @@
 
 .frequency-bar {
   fill: #f8f9fa;
+  transform-origin: bottom center;
 }
