@@ -97,7 +97,6 @@ export default class Visualizer extends Component {
         const analyser = context.createAnalyser();
         analyser.fftSize = 4096;
         source.connect(analyser);
-        const selector = d3.select(this.svg);
 
         const visualize = () => {
           const waveformData = new Uint8Array(analyser.frequencyBinCount);

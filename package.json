@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "next",
-    "build": "next build",
+    "build": "next build && next export",
+    "deploy": "npm run build && cp now.json ./out && cd out && now && now alias",
     "start": "next start"
   },
   "author": "",

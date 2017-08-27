@@ -5,7 +5,8 @@
     "prettier/prettier": [2, {
       "trailingComma": "all",
       "singleQuote": true
-    }]
+    }],
+    "no-unused-vars": true
   },
   "plugins": [
     "prettier"
