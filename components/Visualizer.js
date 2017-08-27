@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import rafSchedule from 'raf-schd';
 import Bar from './Bar';
 import Canvas from './Canvas';
 import FlippedContainer from './FlippedContainer';
@@ -86,11 +87,18 @@ export default class Visualizer extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions);
+    this.stopVisualize = true;
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
     this.updateDimensions();
+
+    const updateBars = rafSchedule((waveformData, bars) => {
+      this.updateBarsHeight(
+        spectrum.GetVisualBins(waveformData, bars, 0, 1024),
+      );
+    });
 
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: false })
@@ -102,18 +110,19 @@ export default class Visualizer extends Component {
         analyser.fftSize = 4096;
         source.connect(analyser);
 
-        const visualize = () => {
+        const visualizeLoop = () => {
+          if (this.stopVisualize) {
+            return;
+          }
+
           const waveformData = new Uint8Array(analyser.frequencyBinCount);
           analyser.getByteFrequencyData(waveformData);
 
-          this.updateBarsHeight(
-            spectrum.GetVisualBins(waveformData, this.props.bars, 0, 1024),
-          );
-
-          requestAnimationFrame(visualize);
+          this.frameId = updateBars(waveformData, this.props.bars);
+          visualizeLoop();
         };
 
-        visualize();
+        visualizeLoop();
       });
   }
 
@@ -124,14 +133,14 @@ export default class Visualizer extends Component {
         width={this.state.windowWidth}
         height={this.state.windowHeight}
       >
+        <Background
+          width={this.state.windowWidth}
+          height={this.state.windowHeight}
+        />
         <FlippedContainer
           width={this.state.windowWidth}
           height={this.state.windowHeight}
         >
-          <Background
-            width={this.state.windowWidth}
-            height={this.state.windowHeight}
-          />
           {this.state.barsHorizontalPositions.map((value, index) =>
             <Bar
               key={index}
