@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import Bar from './Bar';
+import Canvas from './Canvas';
+import FlippedContainer from './FlippedContainer';
+import Background from './Background';
 import * as d3 from 'd3';
 import spectrum from '../lib/Spectrum';
 
@@ -115,41 +119,29 @@ export default class Visualizer extends Component {
 
   render() {
     return (
-      <svg
+      <Canvas
         className="canvas"
-        ref={svg => {
-          this.svg = svg;
-        }}
-        style={{
-          transformOrigin: `${this.state.windowWidth / 2}px ${this.state
-            .windowHeight / 2}px`,
-          transform: `scaleY(-1)`,
-        }}
         width={this.state.windowWidth}
         height={this.state.windowHeight}
       >
-        <rect
-          className="background"
-          x="0"
-          y="0"
+        <FlippedContainer
           width={this.state.windowWidth}
           height={this.state.windowHeight}
-        />
-        <g>
+        >
+          <Background
+            width={this.state.windowWidth}
+            height={this.state.windowHeight}
+          />
           {this.state.barsHorizontalPositions.map((value, index) =>
-            <rect
+            <Bar
               key={index}
               x={value}
               width={this.state.windowWidth / this.props.bars}
-              className="frequency-bar"
-              height="1"
-              style={{
-                transform: `scaleY(${-this.state.barsHeight[index]})`,
-              }}
+              height={this.state.barsHeight[index]}
             />,
           )}
-        </g>
-      </svg>
+        </FlippedContainer>
+      </Canvas>
     );
   }
 }
