@@ -6,12 +6,18 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy": "cp node_modules/normalize.css/normalize.css vendor/normalize.css && cp node_modules/d3/build/d3.js vendor/d3.js",
-    "postinstall": "npm run copy"
+    "postinstall": "npm run copy",
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "d3": "^4.5.0",
-    "normalize.css": "^5.0.0"
+    "next": "^3.0.6",
+    "normalize.css": "^5.0.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
   }
 }
