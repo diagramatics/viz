@@ -1,4 +1,5 @@
-import Head from 'next/head'
+import React from 'react';
+import Head from 'next/head';
 import stylesNormalize from '../styles/normalize';
 import stylesGlobal from '../styles/global';
 import Visualizer from '../components/Visualizer';

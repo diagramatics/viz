@@ -5,8 +5,6 @@
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "copy": "cp node_modules/normalize.css/normalize.css vendor/normalize.css && cp node_modules/d3/build/d3.js vendor/d3.js",
-    "postinstall": "npm run copy",
     "dev": "next",
     "build": "next build",
     "start": "next start"
@@ -19,5 +17,13 @@
     "normalize.css": "^5.0.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.3.0",
+    "prettier": "^1.5.3"
   }
 }

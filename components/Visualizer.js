@@ -1,54 +1,96 @@
+import React, { Component } from 'react';
 import * as d3 from 'd3';
-import { Component } from 'react';
-import Spectrum from '../lib/Spectrum';
+import spectrum from '../lib/Spectrum';
 
 export default class Visualizer extends Component {
-  render() {
-    return (
-      <svg className="canvas" ref={(svg) => this.svg = svg}>
-        <path
-          id="waveformPath"
-          style={{
-            fill: 'none',
-            strokeWidth: 1,
-            stroke: 'black'
-          }}
-        />
-      </svg>
+  static defaultProps = {
+    bars: 96,
+    topRange: 500,
+    bottomRange: 1,
+  };
+
+  getWindowDimensions() {
+    return {
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+    };
+  }
+
+  getScales(bars, windowWidth, windowHeight, topRange, bottomRange) {
+    return {
+      xScale: d3.scaleLinear().range([0, windowWidth]).domain([0, bars]),
+      yScale: d3
+        .scaleLinear()
+        .range([windowHeight, 0])
+        .domain([topRange, bottomRange]),
+    };
+  }
+
+  getBarsHorizontalPositions(bars, xScale) {
+    return Array(bars).fill(1).map((val, index) => xScale(index) * 1.1);
+  }
+
+  updateBarsHeight(waveformData) {
+    this.setState({
+      barsHeight: Array(this.props.bars)
+        .fill(1)
+        .map((val, index) => this.state.yScale(waveformData[index]))
+        .map(val => Math.max(0, val)),
+    });
+  }
+
+  updateDimensions() {
+    const windowDimensions = this.getWindowDimensions();
+    const scales = this.getScales(
+      this.props.bars,
+      windowDimensions.windowWidth,
+      windowDimensions.windowHeight,
+      this.props.topRange,
+      this.props.bottomRange,
     );
+    const barsHorizontalPositions = this.getBarsHorizontalPositions(
+      this.props.bars,
+      scales.xScale,
+    );
+
+    this.setState({
+      ...windowDimensions,
+      ...scales,
+      barsHorizontalPositions,
+    });
+  }
+
+  constructor(props) {
+    super(props);
+    this.updateDimensions = this.updateDimensions.bind(this);
+    this.getScales = this.getScales.bind(this);
+    this.getWindowDimensions = this.getWindowDimensions.bind(this);
+    this.getBarsHorizontalPositions = this.getBarsHorizontalPositions.bind(
+      this,
+    );
+    this.updateBarsHeight = this.updateBarsHeight.bind(this);
+
+    this.state = {
+      windowWidth: 0,
+      windowHeight: 0,
+      barsHorizontalPositions: [],
+      barsHeight: [],
+      xScale: () => {},
+      yScale: () => {},
+    };
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions);
   }
 
   componentDidMount() {
-    const sensitivity = 1; // min 1
-    const topRange = 500; // max 0
-    const bottomRange = -10;
+    window.addEventListener('resize', this.updateDimensions);
+    this.updateDimensions();
 
-    function aggregate(data, bars) {
-      const aggregated = new Float32Array(bars);
-
-      for(let i = 0; i < bars; i++) {
-        const lowerBound = Math.floor(i / bars * data.length);
-        const upperBound = Math.floor((i + 1) / bars * data.length);
-        const bucket = data.slice(lowerBound, upperBound);
-
-        aggregated[i] = bucket.reduce((acc, d) => acc + d, 0) / bucket.length * sensitivity;
-
-        if (!Number.isFinite(aggregated[i])) {
-          aggregated[i] = bottomRange;
-        }
-      }
-
-      return aggregated;
-    }
-
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-
-    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-      .then((mediaStream) => {
-        // const bars = Math.floor(width / 30);
-        const bars = 90;
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: false })
+      .then(mediaStream => {
         const context = new AudioContext();
         const source = context.createMediaStreamSource(mediaStream);
 
@@ -57,63 +99,58 @@ export default class Visualizer extends Component {
         source.connect(analyser);
         const selector = d3.select(this.svg);
 
-        selector.selectAll('rect').remove();
-
-        selector.attr('width', width);
-        selector.attr('height', height);
-
-        selector.append('rect')
-          .attr('class', 'background')
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('width', width)
-          .attr('height', height);
-
-        selector.attr("style", "transform-origin: " + (width / 2) + "px " + (height / 2) + "px; transform: scaleY(-1);");
-
-        const spectrum = new Spectrum();
-
-        const visualize = function () {
-          // let waveformData = new Float32Array(analyser.frequencyBinCount);
-          let waveformData = new Uint8Array(analyser.frequencyBinCount);
+        const visualize = () => {
+          const waveformData = new Uint8Array(analyser.frequencyBinCount);
           analyser.getByteFrequencyData(waveformData);
-          // waveformData = aggregate(waveformData, bars);
-          waveformData = spectrum.GetVisualBins(waveformData, bars, 0, 1000);
 
-          const xScale = d3.scaleLinear()
-            .range([0, width])
-            .domain([0, bars]);
-
-          const yScale = d3.scaleLinear()
-            .range([height, 0])
-            .domain([topRange, bottomRange]);
-
-          const rect = selector.selectAll('rect.frequency-bar')
-            .data(waveformData);
-
-          rect.enter()
-            .append('rect')
-            .attr('x', function(d, i) {
-              return xScale(i) * 1.1;
-            })
-            .attr('width', function() {
-              return width / bars;
-              // return 20;
-            })
-            .attr('height', 1)
-            // .attr('rx', 8)
-            // .attr('ry', 8)
-            .attr('y', -4)
-            .attr('class', 'frequency-bar');
-
-          // rect.attr('height', (d) => Math.max(1, yScale(d)));
-          rect.attr('style', (d) => `transform: scaleY(${-Math.max(1, yScale(d))})`)
-
+          this.updateBarsHeight(
+            spectrum.GetVisualBins(waveformData, this.props.bars, 0, 1024),
+          );
 
           requestAnimationFrame(visualize);
-        }
+        };
 
         visualize();
       });
+  }
+
+  render() {
+    return (
+      <svg
+        className="canvas"
+        ref={svg => {
+          this.svg = svg;
+        }}
+        style={{
+          transformOrigin: `${this.state.windowWidth / 2}px ${this.state
+            .windowHeight / 2}px`,
+          transform: `scaleY(-1)`,
+        }}
+        width={this.state.windowWidth}
+        height={this.state.windowHeight}
+      >
+        <rect
+          className="background"
+          x="0"
+          y="0"
+          width={this.state.windowWidth}
+          height={this.state.windowHeight}
+        />
+        <g>
+          {this.state.barsHorizontalPositions.map((value, index) =>
+            <rect
+              key={index}
+              x={value}
+              width={this.state.windowWidth / this.props.bars}
+              className="frequency-bar"
+              height="1"
+              style={{
+                transform: `scaleY(${-this.state.barsHeight[index]})`,
+              }}
+            />,
+          )}
+        </g>
+      </svg>
+    );
   }
 }
