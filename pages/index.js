@@ -3,6 +3,7 @@ import Head from 'next/head';
 import stylesNormalize from '../styles/normalize';
 import stylesGlobal from '../styles/global';
 import Visualizer from '../components/Visualizer';
+import MouseIdleHide from '../components/MouseIdleHide';
 
 export default () => (
   <div>
@@ -13,6 +14,8 @@ export default () => (
     <style jsx global>{stylesNormalize}</style>
     <style jsx global>{stylesGlobal}</style>
 
-    <Visualizer />
+    <MouseIdleHide timeout="3000">
+      <Visualizer />
+    </MouseIdleHide>
   </div>
 );
