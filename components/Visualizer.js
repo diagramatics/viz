@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import rafSchedule from 'raf-schd';
 import Bar from './Bar';
 import Canvas from './Canvas';
 import FlippedContainer from './FlippedContainer';
@@ -109,18 +110,21 @@ export default class Visualizer extends Component {
         analyser.fftSize = 4096;
         source.connect(analyser);
 
-        const visualizeLoop = () => {
+        const visualizeLoop = rafSchedule(() => {
           if (this.stopVisualize) {
             return;
           }
           const waveformData = new Uint8Array(analyser.frequencyBinCount);
           analyser.getByteFrequencyData(waveformData);
 
-          this.frameId = updateBars(waveformData, this.props.bars);
-          requestAnimationFrame(visualizeLoop);
-        };
+          this.updateBarsHeight(
+            spectrum.GetVisualBins(waveformData, this.props.bars, 0, 1024),
+          );
 
-        visualizeLoop();
+          this.frameId = visualizeLoop();
+        });
+
+        this.frameId = visualizeLoop();
       });
   }
 
