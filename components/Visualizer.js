@@ -114,12 +114,11 @@ export default class Visualizer extends Component {
           if (this.stopVisualize) {
             return;
           }
-
           const waveformData = new Uint8Array(analyser.frequencyBinCount);
           analyser.getByteFrequencyData(waveformData);
 
           this.frameId = updateBars(waveformData, this.props.bars);
-          visualizeLoop();
+          requestAnimationFrame(visualizeLoop);
         };
 
         visualizeLoop();
