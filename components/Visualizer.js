@@ -94,12 +94,6 @@ export default class Visualizer extends Component {
     window.addEventListener('resize', this.updateDimensions);
     this.updateDimensions();
 
-    const updateBars = rafSchedule((waveformData, bars) => {
-      this.updateBarsHeight(
-        spectrum.GetVisualBins(waveformData, bars, 0, 1024),
-      );
-    });
-
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: false })
       .then(mediaStream => {
@@ -110,18 +104,21 @@ export default class Visualizer extends Component {
         analyser.fftSize = 4096;
         source.connect(analyser);
 
-        const visualizeLoop = () => {
+        const visualizeLoop = rafSchedule(() => {
           if (this.stopVisualize) {
             return;
           }
           const waveformData = new Uint8Array(analyser.frequencyBinCount);
           analyser.getByteFrequencyData(waveformData);
 
-          this.frameId = updateBars(waveformData, this.props.bars);
-          requestAnimationFrame(visualizeLoop);
-        };
+          this.updateBarsHeight(
+            spectrum.GetVisualBins(waveformData, this.props.bars, 0, 1024),
+          );
 
-        visualizeLoop();
+          this.frameId = visualizeLoop();
+        });
+
+        this.frameId = visualizeLoop();
       });
   }
 
