@@ -13,19 +13,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "d3": "^4.5.0",
-    "next": "^3.0.6",
-    "normalize.css": "^5.0.0",
+    "d3": "^4.10.2",
+    "next": "4.0.0-beta.2",
+    "normalize.css": "^7.0.0",
     "raf-schd": "^2.0.1",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1"
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
   },
   "devDependencies": {
-    "eslint": "^4.5.0",
+    "eslint": "^4.8.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.3.0",
-    "prettier": "^1.5.3"
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0",
+    "prettier": "^1.7.3"
   }
 }

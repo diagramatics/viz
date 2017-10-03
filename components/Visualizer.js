@@ -123,7 +123,6 @@ export default class Visualizer extends Component {
 
           this.frameId = visualizeLoop();
         });
-
         this.frameId = visualizeLoop();
       });
   }

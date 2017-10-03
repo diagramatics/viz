@@ -36,7 +36,7 @@ export default class MouseIdleHide extends Component {
 
   render() {
     return (
-      <div className={!this.state.mouse && 'hide-mouse'}>
+      <div className={!this.state.mouse ? 'hide-mouse' : ''}>
         {this.props.children}
         <style jsx>{`
           .hide-mouse {

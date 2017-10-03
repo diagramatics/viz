@@ -19,6 +19,5 @@ export default `
 
   .frequency-bar {
     fill: rgba(248, 249, 250, 0.8);
-    transform-origin: bottom center;
   }
 `;
