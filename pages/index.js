@@ -4,6 +4,8 @@ import stylesNormalize from '../styles/normalize';
 import stylesGlobal from '../styles/global';
 import Visualizer from '../components/Visualizer';
 import MouseIdleHide from '../components/MouseIdleHide';
+import FullContainer from '../components/FullContainer';
+import SettingsToolbar from '../components/SettingsToolbar';
 
 export default () => (
   <div>
@@ -15,7 +17,10 @@ export default () => (
     <style jsx global>{stylesGlobal}</style>
 
     <MouseIdleHide timeout="3000">
-      <Visualizer />
+      <FullContainer>
+        <Visualizer />
+        <SettingsToolbar />
+      </FullContainer>
     </MouseIdleHide>
   </div>
 );

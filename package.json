@@ -18,7 +18,12 @@
     "normalize.css": "^7.0.0",
     "raf-schd": "^2.0.1",
     "react": "^16.0.0",
-    "react-dom": "^16.0.0"
+    "react-color": "^2.13.8",
+    "react-dom": "^16.0.0",
+    "react-feather": "^1.0.7",
+    "redux": "^3.7.2",
+    "redux-devtools-extension": "^2.13.2",
+    "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
     "eslint": "^4.8.0",
