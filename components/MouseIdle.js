@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-export default class MouseIdleHide extends Component {
+export default class MouseIdle extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,6 +11,7 @@ export default class MouseIdleHide extends Component {
 
   static defaultProps = {
     timeout: 3000,
+    Idle: PropTypes.instanceOf(Component),
   }
 
   componentDidMount() {
@@ -35,15 +37,8 @@ export default class MouseIdleHide extends Component {
   }
 
   render() {
-    return (
-      <div className={!this.state.mouse ? 'hide-mouse' : ''}>
-        {this.props.children}
-        <style jsx>{`
-          .hide-mouse {
-            cursor: none;
-          }
-        `}</style>
-      </div>
-    );
+    const { Idle, ...props } = this.props;
+    const { mouse } = this.state;
+    return <Idle mouseIdle={!mouse} {...props} />
   }
 }

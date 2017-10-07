@@ -130,7 +130,6 @@ export default class Visualizer extends Component {
   render() {
     return (
       <Canvas
-        className="canvas"
         width={this.state.windowWidth}
         height={this.state.windowHeight}
       >

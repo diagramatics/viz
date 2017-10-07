@@ -3,7 +3,8 @@ import Head from 'next/head';
 import stylesNormalize from '../styles/normalize';
 import stylesGlobal from '../styles/global';
 import Visualizer from '../components/Visualizer';
-import MouseIdleHide from '../components/MouseIdleHide';
+import MouseIdle from '../components/MouseIdle';
+import MouseHide from '../components/MouseHide';
 import FullContainer from '../components/FullContainer';
 import SettingsToolbar from '../components/SettingsToolbar';
 
@@ -16,11 +17,11 @@ export default () => (
     <style jsx global>{stylesNormalize}</style>
     <style jsx global>{stylesGlobal}</style>
 
-    <MouseIdleHide timeout="3000">
+    <MouseIdle Idle={MouseHide} >
       <FullContainer>
         <Visualizer />
-        <SettingsToolbar />
+        <MouseIdle Idle={SettingsToolbar} />
       </FullContainer>
-    </MouseIdleHide>
+    </MouseIdle>
   </div>
 );

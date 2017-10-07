@@ -5,8 +5,9 @@ import ToolbarButton from './ToolbarButton';
 
 export default class SettingsToolbar extends Component {
   render() {
+    const { mouseIdle } = this.props;
     return (
-      <Toolbar>
+      <Toolbar active={!mouseIdle}>
         <ToolbarButton>
           <Droplet style={{verticalAlign: 'middle'}} />
         </ToolbarButton>

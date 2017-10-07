@@ -1,8 +1,10 @@
-export default ({ width, height }) =>
+export default ({ width, height, background = '#82c91e' }) =>
   <rect
-    className="background"
     x="0"
     y="0"
     width={width}
     height={height}
+    style={{
+      fill: background,
+    }}
   />

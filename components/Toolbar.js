@@ -1,6 +1,6 @@
-export default ({ children }) => (
+export default ({ active, children }) => (
   <div class="container">
-    <div className="toolbar is-hidden">
+    <div className={active ? 'toolbar' : 'toolbar is-hidden'}>
       {children}
     </div>
     <style jsx>{`
