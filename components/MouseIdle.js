@@ -2,6 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export default class MouseIdle extends Component {
+  static propTypes = {
+    timeout: PropTypes.number,
+    Idle: PropTypes.node.isRequired,
+    active: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    timeout: 5000,
+    active: true,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -9,12 +20,8 @@ export default class MouseIdle extends Component {
     };
   }
 
-  static defaultProps = {
-    timeout: 3000,
-    Idle: PropTypes.instanceOf(Component),
-  }
-
   componentDidMount() {
+    const { timeout } = this.props;
     document.addEventListener('mousemove', () => {
       this.setState({
         mouse: true,
@@ -26,7 +33,7 @@ export default class MouseIdle extends Component {
         });
 
         this.timer = null;
-      }, this.props.timeout);
+      }, timeout);
     });
   }
 
@@ -37,8 +44,8 @@ export default class MouseIdle extends Component {
   }
 
   render() {
-    const { Idle, ...props } = this.props;
+    const { Idle, active, ...props } = this.props;
     const { mouse } = this.state;
-    return <Idle mouseIdle={!mouse} {...props} />
+    return <Idle mouseIdle={active ? !mouse : false} {...props} />;
   }
 }

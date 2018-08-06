@@ -1,10 +1,10 @@
+import * as d3 from 'd3';
 import React, { Component } from 'react';
 import rafSchedule from 'raf-schd';
 import Bar from './Bar';
 import Canvas from './Canvas';
 import FlippedContainer from './FlippedContainer';
 import Background from './Background';
-import * as d3 from 'd3';
 import spectrum from '../lib/Spectrum';
 
 export default class Visualizer extends Component {
@@ -13,57 +13,6 @@ export default class Visualizer extends Component {
     topRange: 500,
     bottomRange: 1,
   };
-
-  getWindowDimensions() {
-    return {
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-    };
-  }
-
-  getScales(bars, windowWidth, windowHeight, topRange, bottomRange) {
-    return {
-      xScale: d3.scaleLinear().range([0, windowWidth]).domain([0, bars]),
-      yScale: d3
-        .scaleLinear()
-        .range([windowHeight, 0])
-        .domain([topRange, bottomRange]),
-    };
-  }
-
-  getBarsHorizontalPositions(bars, xScale) {
-    return Array(bars).fill(1).map((val, index) => xScale(index) * 1.1);
-  }
-
-  updateBarsHeight(waveformData) {
-    this.setState({
-      barsHeight: Array(this.props.bars)
-        .fill(1)
-        .map((val, index) => this.state.yScale(waveformData[index]))
-        .map(val => Math.max(0, val)),
-    });
-  }
-
-  updateDimensions() {
-    const windowDimensions = this.getWindowDimensions();
-    const scales = this.getScales(
-      this.props.bars,
-      windowDimensions.windowWidth,
-      windowDimensions.windowHeight,
-      this.props.topRange,
-      this.props.bottomRange,
-    );
-    const barsHorizontalPositions = this.getBarsHorizontalPositions(
-      this.props.bars,
-      scales.xScale,
-    );
-
-    this.setState({
-      ...windowDimensions,
-      ...scales,
-      barsHorizontalPositions,
-    });
-  }
 
   constructor(props) {
     super(props);
@@ -85,16 +34,11 @@ export default class Visualizer extends Component {
     };
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.updateDimensions);
-    this.stopVisualize = true;
-  }
-
   componentDidMount() {
     window.addEventListener('resize', this.updateDimensions);
     this.updateDimensions();
 
-    const updateBars = rafSchedule((waveformData, bars) => {
+    rafSchedule((waveformData, bars) => {
       this.updateBarsHeight(
         spectrum.GetVisualBins(waveformData, bars, 0, 1024),
       );
@@ -127,28 +71,92 @@ export default class Visualizer extends Component {
       });
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions);
+    this.stopVisualize = true;
+  }
+
+  getWindowDimensions() {
+    return {
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+    };
+  }
+
+  getScales(bars, windowWidth, windowHeight, topRange, bottomRange) {
+    return {
+      xScale: d3
+        .scaleLinear()
+        .range([0, windowWidth])
+        .domain([0, bars]),
+      yScale: d3
+        .scaleLinear()
+        .range([windowHeight, 0])
+        .domain([topRange, bottomRange]),
+    };
+  }
+
+  getBarsHorizontalPositions(bars, xScale) {
+    return Array(bars)
+      .fill(1)
+      .map((val, index) => xScale(index) * 1.1);
+  }
+
+  updateBarsHeight(waveformData) {
+    this.setState({
+      barsHeight: Array(this.props.bars)
+        .fill(1)
+        .map((val, index) => this.state.yScale(waveformData[index]))
+        .map(val => Math.max(0, val)),
+    });
+  }
+
+  updateDimensions() {
+    const windowDimensions = this.getWindowDimensions();
+    const scales = this.getScales(
+      this.props.bars,
+      windowDimensions.windowWidth,
+      windowDimensions.windowHeight,
+      this.props.topRange,
+      this.props.bottomRange,
+    );
+    const barsHorizontalPositions = this.getBarsHorizontalPositions(
+      this.props.bars,
+      scales.xScale,
+    );
+
+    this.setState({
+      ...windowDimensions,
+      ...scales,
+      barsHorizontalPositions,
+    });
+  }
+
   render() {
+    const {
+      windowWidth,
+      windowHeight,
+      barsHorizontalPositions,
+      barsHeight,
+    } = this.state;
+
+    const { background, bars } = this.props;
     return (
-      <Canvas
-        width={this.state.windowWidth}
-        height={this.state.windowHeight}
-      >
+      <Canvas width={windowWidth} height={windowHeight}>
         <Background
-          width={this.state.windowWidth}
-          height={this.state.windowHeight}
+          width={windowWidth}
+          height={windowHeight}
+          background={background}
         />
-        <FlippedContainer
-          width={this.state.windowWidth}
-          height={this.state.windowHeight}
-        >
-          {this.state.barsHorizontalPositions.map((value, index) =>
+        <FlippedContainer width={windowWidth} height={windowHeight}>
+          {barsHorizontalPositions.map((value, index) => (
             <Bar
               key={index}
               x={value}
-              width={this.state.windowWidth / this.props.bars}
-              height={this.state.barsHeight[index]}
-            />,
-          )}
+              width={windowWidth / bars}
+              height={barsHeight[index]}
+            />
+          ))}
         </FlippedContainer>
       </Canvas>
     );

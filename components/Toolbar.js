@@ -1,8 +1,9 @@
-export default ({ active, children }) => (
-  <div class="container">
-    <div className={active ? 'toolbar' : 'toolbar is-hidden'}>
-      {children}
-    </div>
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const Toolbar = ({ active, children }) => (
+  <div className="container">
+    <div className={active ? 'toolbar' : 'toolbar is-hidden'}>{children}</div>
     <style jsx>{`
       .toolbar {
         display: flex;
@@ -28,8 +29,18 @@ export default ({ active, children }) => (
         left: 0;
         right: 0;
         height: 48px;
-        overflow-y: hidden;
       }
     `}</style>
   </div>
-)
+);
+
+Toolbar.propTypes = {
+  active: PropTypes.bool.isRequired,
+  children: PropTypes.node,
+};
+
+Toolbar.defaultProps = {
+  children: undefined,
+};
+
+export default Toolbar;

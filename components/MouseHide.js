@@ -1,4 +1,7 @@
-export default ({ mouseIdle, children }) => (
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const MouseHide = ({ mouseIdle, children }) => (
   <div className={mouseIdle ? 'hide-mouse' : ''}>
     {children}
     <style jsx>{`
@@ -8,3 +11,15 @@ export default ({ mouseIdle, children }) => (
     `}</style>
   </div>
 );
+
+MouseHide.propTypes = {
+  mouseIdle: PropTypes.bool,
+  children: PropTypes.node,
+};
+
+MouseHide.defaultProps = {
+  mouseIdle: false,
+  children: undefined,
+};
+
+export default MouseHide;
