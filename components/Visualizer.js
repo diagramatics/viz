@@ -49,9 +49,11 @@ export default class Visualizer extends React.PureComponent {
     return Array(bars)
       .fill(1)
       .map((val, index) =>
-        this.getYScale(height, topRange, bottomRange)(waveformData[index]),
-      )
-      .map(val => Math.max(0, val));
+        Math.max(
+          0,
+          this.getYScale(height, topRange, bottomRange)(waveformData[index]),
+        ),
+      );
   };
 
   render() {
