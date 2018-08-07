@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import rafSchedule from 'raf-schd';
 import Bar from './Bar';
@@ -8,41 +9,32 @@ import Background from './Background';
 import spectrum from '../lib/Spectrum';
 
 export default class Visualizer extends Component {
+  static propTypes = {
+    bars: PropTypes.number,
+    topRange: PropTypes.number,
+    bottomRange: PropTypes.number,
+    background: PropTypes.string.isRequired,
+  };
+
   static defaultProps = {
     bars: 96,
     topRange: 500,
     bottomRange: 1,
   };
 
-  constructor(props) {
-    super(props);
-    this.updateDimensions = this.updateDimensions.bind(this);
-    this.getScales = this.getScales.bind(this);
-    this.getWindowDimensions = this.getWindowDimensions.bind(this);
-    this.getBarsHorizontalPositions = this.getBarsHorizontalPositions.bind(
-      this,
-    );
-    this.updateBarsHeight = this.updateBarsHeight.bind(this);
-
-    this.state = {
-      windowWidth: 0,
-      windowHeight: 0,
-      barsHorizontalPositions: [],
-      barsHeight: [],
-      xScale: () => {},
-      yScale: () => {},
-    };
-  }
+  state = {
+    windowWidth: 0,
+    windowHeight: 0,
+    barsHorizontalPositions: [],
+    barsHeight: [],
+    yScale: () => {},
+  };
 
   componentDidMount() {
+    const { bars } = this.props;
+
     window.addEventListener('resize', this.updateDimensions);
     this.updateDimensions();
-
-    rafSchedule((waveformData, bars) => {
-      this.updateBarsHeight(
-        spectrum.GetVisualBins(waveformData, bars, 0, 1024),
-      );
-    });
 
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: false })
@@ -62,7 +54,7 @@ export default class Visualizer extends Component {
           analyser.getByteFrequencyData(waveformData);
 
           this.updateBarsHeight(
-            spectrum.GetVisualBins(waveformData, this.props.bars, 0, 1024),
+            spectrum.GetVisualBins(waveformData, bars, 0, 1024),
           );
 
           this.frameId = visualizeLoop();
@@ -76,52 +68,50 @@ export default class Visualizer extends Component {
     this.stopVisualize = true;
   }
 
-  getWindowDimensions() {
-    return {
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-    };
-  }
+  getWindowDimensions = () => ({
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
+  });
 
-  getScales(bars, windowWidth, windowHeight, topRange, bottomRange) {
-    return {
-      xScale: d3
-        .scaleLinear()
-        .range([0, windowWidth])
-        .domain([0, bars]),
-      yScale: d3
-        .scaleLinear()
-        .range([windowHeight, 0])
-        .domain([topRange, bottomRange]),
-    };
-  }
+  getScales = (bars, windowWidth, windowHeight, topRange, bottomRange) => ({
+    xScale: d3
+      .scaleLinear()
+      .range([0, windowWidth])
+      .domain([0, bars]),
+    yScale: d3
+      .scaleLinear()
+      .range([windowHeight, 0])
+      .domain([topRange, bottomRange]),
+  });
 
-  getBarsHorizontalPositions(bars, xScale) {
-    return Array(bars)
+  getBarsHorizontalPositions = (bars, xScale) =>
+    Array(bars)
       .fill(1)
       .map((val, index) => xScale(index) * 1.1);
-  }
 
-  updateBarsHeight(waveformData) {
+  updateBarsHeight = waveformData => {
+    const { bars } = this.props;
+    const { yScale } = this.state;
     this.setState({
-      barsHeight: Array(this.props.bars)
+      barsHeight: Array(bars)
         .fill(1)
-        .map((val, index) => this.state.yScale(waveformData[index]))
+        .map((val, index) => yScale(waveformData[index]))
         .map(val => Math.max(0, val)),
     });
-  }
+  };
 
-  updateDimensions() {
+  updateDimensions = () => {
+    const { bars, topRange, bottomRange } = this.props;
     const windowDimensions = this.getWindowDimensions();
     const scales = this.getScales(
-      this.props.bars,
+      bars,
       windowDimensions.windowWidth,
       windowDimensions.windowHeight,
-      this.props.topRange,
-      this.props.bottomRange,
+      topRange,
+      bottomRange,
     );
     const barsHorizontalPositions = this.getBarsHorizontalPositions(
-      this.props.bars,
+      bars,
       scales.xScale,
     );
 
@@ -130,7 +120,7 @@ export default class Visualizer extends Component {
       ...scales,
       barsHorizontalPositions,
     });
-  }
+  };
 
   render() {
     const {
@@ -151,6 +141,7 @@ export default class Visualizer extends Component {
         <FlippedContainer width={windowWidth} height={windowHeight}>
           {barsHorizontalPositions.map((value, index) => (
             <Bar
+              // eslint-disable-next-line react/no-array-index-key
               key={index}
               x={value}
               width={windowWidth / bars}

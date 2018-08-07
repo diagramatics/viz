@@ -4,6 +4,7 @@ import { devToolsEnhancer } from 'redux-devtools-extension';
 // Create store with reducers and initial state
 const initialState = {
   background: '#82c91e',
+  mouseIdleActive: false,
 };
 
 const reducer = (state = initialState, action) => {
