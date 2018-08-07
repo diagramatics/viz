@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import rafSchedule from 'raf-schd';
+import memoizeOne from 'memoize-one';
 import Bar from './Bar';
 import Canvas from './Canvas';
 import FlippedContainer from './FlippedContainer';
@@ -10,10 +11,12 @@ import spectrum from '../lib/Spectrum';
 
 export default class Visualizer extends Component {
   static propTypes = {
+    background: PropTypes.string.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
     bars: PropTypes.number,
     topRange: PropTypes.number,
     bottomRange: PropTypes.number,
-    background: PropTypes.string.isRequired,
   };
 
   static defaultProps = {
@@ -23,18 +26,12 @@ export default class Visualizer extends Component {
   };
 
   state = {
-    windowWidth: 0,
-    windowHeight: 0,
-    barsHorizontalPositions: [],
-    barsHeight: [],
-    yScale: () => {},
+    // eslint-disable-next-line react/destructuring-assignment
+    barsHeight: Array(this.props.bars).fill(0),
   };
 
   componentDidMount() {
     const { bars } = this.props;
-
-    window.addEventListener('resize', this.updateDimensions);
-    this.updateDimensions();
 
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: false })
@@ -46,11 +43,12 @@ export default class Visualizer extends Component {
         analyser.fftSize = 4096;
         source.connect(analyser);
 
+        const waveformData = new Uint8Array(analyser.frequencyBinCount);
+
         const visualizeLoop = rafSchedule(() => {
           if (this.stopVisualize) {
             return;
           }
-          const waveformData = new Uint8Array(analyser.frequencyBinCount);
           analyser.getByteFrequencyData(waveformData);
 
           this.updateBarsHeight(
@@ -64,87 +62,60 @@ export default class Visualizer extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.updateDimensions);
     this.stopVisualize = true;
   }
 
-  getWindowDimensions = () => ({
-    windowWidth: window.innerWidth,
-    windowHeight: window.innerHeight,
-  });
-
-  getScales = (bars, windowWidth, windowHeight, topRange, bottomRange) => ({
-    xScale: d3
+  getXScale = memoizeOne((width, bars) =>
+    d3
       .scaleLinear()
-      .range([0, windowWidth])
+      .range([0, width])
       .domain([0, bars]),
-    yScale: d3
-      .scaleLinear()
-      .range([windowHeight, 0])
-      .domain([topRange, bottomRange]),
-  });
+  );
 
-  getBarsHorizontalPositions = (bars, xScale) =>
+  getYScale = memoizeOne((height, topRange, bottomRange) =>
+    d3
+      .scaleLinear()
+      .range([height, 0])
+      .domain([topRange, bottomRange]),
+  );
+
+  getBarsHorizontalPositions = memoizeOne((bars, width) =>
     Array(bars)
       .fill(1)
-      .map((val, index) => xScale(index) * 1.1);
+      .map((val, index) => this.getXScale(width, bars)(index) * 1.1),
+  );
 
   updateBarsHeight = waveformData => {
-    const { bars } = this.props;
-    const { yScale } = this.state;
+    const { bars, height, topRange, bottomRange } = this.props;
     this.setState({
       barsHeight: Array(bars)
         .fill(1)
-        .map((val, index) => yScale(waveformData[index]))
+        .map((val, index) =>
+          this.getYScale(height, topRange, bottomRange)(waveformData[index]),
+        )
         .map(val => Math.max(0, val)),
     });
   };
 
-  updateDimensions = () => {
-    const { bars, topRange, bottomRange } = this.props;
-    const windowDimensions = this.getWindowDimensions();
-    const scales = this.getScales(
-      bars,
-      windowDimensions.windowWidth,
-      windowDimensions.windowHeight,
-      topRange,
-      bottomRange,
-    );
+  render() {
+    const { background, bars, width, height } = this.props;
+    const { barsHeight } = this.state;
+
     const barsHorizontalPositions = this.getBarsHorizontalPositions(
       bars,
-      scales.xScale,
+      width,
     );
 
-    this.setState({
-      ...windowDimensions,
-      ...scales,
-      barsHorizontalPositions,
-    });
-  };
-
-  render() {
-    const {
-      windowWidth,
-      windowHeight,
-      barsHorizontalPositions,
-      barsHeight,
-    } = this.state;
-
-    const { background, bars } = this.props;
     return (
-      <Canvas width={windowWidth} height={windowHeight}>
-        <Background
-          width={windowWidth}
-          height={windowHeight}
-          background={background}
-        />
-        <FlippedContainer width={windowWidth} height={windowHeight}>
+      <Canvas width={width} height={height}>
+        <Background width={width} height={height} background={background} />
+        <FlippedContainer width={width} height={height}>
           {barsHorizontalPositions.map((value, index) => (
             <Bar
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               x={value}
-              width={windowWidth / bars}
+              width={width / bars}
               height={barsHeight[index]}
             />
           ))}

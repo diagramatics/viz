@@ -10,6 +10,7 @@ import MouseHide from '../components/MouseHide';
 import FullContainer from '../components/FullContainer';
 import SettingsToolbar from '../components/SettingsToolbar';
 import { initStore } from '../store';
+import WindowMeasure from '../components/WindowMeasure';
 
 const Home = ({ mouseIdleActive, background }) => (
   <div>
@@ -26,7 +27,11 @@ const Home = ({ mouseIdleActive, background }) => (
 
     <MouseIdle Idle={MouseHide} active={mouseIdleActive}>
       <FullContainer>
-        <Visualizer background={background} />
+        <WindowMeasure>
+          {({ width, height }) => (
+            <Visualizer background={background} width={width} height={height} />
+          )}
+        </WindowMeasure>
         <MouseIdle Idle={SettingsToolbar} active={mouseIdleActive} />
       </FullContainer>
     </MouseIdle>

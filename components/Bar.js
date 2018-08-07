@@ -7,7 +7,7 @@ const Bar = ({ x, width, height }) => (
     width={width}
     height="1"
     style={{
-      transform: `scaleY(${height})`,
+      transform: `scaleY(${height}) translateZ(0)`,
     }}
     className="frequency-bar"
   >
