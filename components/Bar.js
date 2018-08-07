@@ -1,4 +1,7 @@
-export default ({ x, width, height }) =>
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const Bar = ({ x, width, height }) => (
   <rect
     x={x}
     width={width}
@@ -13,4 +16,13 @@ export default ({ x, width, height }) =>
         fill: rgba(248, 249, 250, 0.8);
       }
     `}</style>
-  </rect>;
+  </rect>
+);
+
+Bar.propTypes = {
+  x: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+};
+
+export default Bar;
