@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
-import withRedux from 'next-redux-wrapper';
+import { connect } from 'react-redux';
 import stylesNormalize from '../styles/normalize';
 import stylesGlobal from '../styles/global';
 import Visualizer from '../components/Visualizer';
@@ -9,7 +9,6 @@ import MouseIdle from '../components/MouseIdle';
 import MouseHide from '../components/MouseHide';
 import FullContainer from '../components/FullContainer';
 import SettingsToolbar from '../components/SettingsToolbar';
-import { initStore } from '../store';
 import WindowMeasure from '../components/WindowMeasure';
 
 const Home = ({ mouseIdleActive, background }) => (
@@ -43,7 +42,7 @@ Home.propTypes = {
   background: PropTypes.string.isRequired,
 };
 
-export default withRedux(initStore, ({ mouseIdleActive, background }) => ({
+export default connect(({ mouseIdleActive, background }) => ({
   mouseIdleActive,
   background,
 }))(Home);

@@ -1,5 +1,7 @@
+import React from 'react';
+
 export default ({ children, ...props }) => (
-  <button className="button" {...props}>
+  <button type="button" className="button" {...props}>
     {children}
     <style jsx>{`
       .button {
@@ -15,4 +17,4 @@ export default ({ children, ...props }) => (
       }
     `}</style>
   </button>
-)
+);

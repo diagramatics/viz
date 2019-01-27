@@ -1,5 +1,8 @@
 {
   "name": "viz",
+  "version": 2,
   "alias": ["viz.dgr.li"],
-  "type": "static"
+  "builds": [
+    { "src": "package.json", "use": "@now/static-build" }
+  ]
 }

@@ -1,4 +1,6 @@
-export default ({ children, width, height }) =>
+import React from 'react';
+
+export default ({ children, width, height }) => (
   <g
     style={{
       transformOrigin: `${width / 2}px ${height / 2}px`,
@@ -6,4 +8,5 @@ export default ({ children, width, height }) =>
     }}
   >
     {children}
-  </g>;
+  </g>
+);

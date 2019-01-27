@@ -1,4 +1,6 @@
-export default ({ children, width, height }) =>
+import React from 'react';
+
+export default ({ children, width, height }) => (
   <svg className="canvas" width={width} height={height}>
     {children}
     <style jsx>{`
@@ -10,4 +12,5 @@ export default ({ children, width, height }) =>
         left: 0;
       }
     `}</style>
-  </svg>;
+  </svg>
+);
