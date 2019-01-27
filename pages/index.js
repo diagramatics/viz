@@ -11,7 +11,6 @@ import FullContainer from '../components/FullContainer';
 import SettingsToolbar from '../components/SettingsToolbar';
 import { initStore } from '../store';
 import WindowMeasure from '../components/WindowMeasure';
-import AudioAnalyser from '../components/AudioAnalyser';
 
 const Home = ({ mouseIdleActive, background }) => (
   <div>
@@ -28,20 +27,11 @@ const Home = ({ mouseIdleActive, background }) => (
 
     <MouseIdle Idle={MouseHide} active={mouseIdleActive}>
       <FullContainer>
-        <AudioAnalyser>
-          {({ data }) => (
-            <WindowMeasure>
-              {({ width, height }) => (
-                <Visualizer
-                  data={data}
-                  background={background}
-                  width={width}
-                  height={height}
-                />
-              )}
-            </WindowMeasure>
+        <WindowMeasure>
+          {({ width, height }) => (
+            <Visualizer background={background} width={width} height={height} />
           )}
-        </AudioAnalyser>
+        </WindowMeasure>
         <MouseIdle Idle={SettingsToolbar} active={mouseIdleActive} />
       </FullContainer>
     </MouseIdle>
